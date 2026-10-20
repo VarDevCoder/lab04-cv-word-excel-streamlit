@@ -14,22 +14,161 @@ import streamlit as st
 from docx import Document
 
 st.set_page_config(
-    page_title="Lector de CVs Word & Homologador Excel",
-    page_icon="📄",
+    page_title="Lab 04 · CVs & Excel",
+    page_icon="🧠",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
-st.title("📄 Ingestión y Procesamiento de CVs en Word (.docx)")
-st.caption(
-    "Laboratorio 4 · Unidad II · Cátedra de Aplicaciones de la Inteligencia Artificial"
+# ---------------------------------------------------------------------------
+# Estilos (tema custom)
+# ---------------------------------------------------------------------------
+st.markdown(
+    """
+    <style>
+        :root {
+            --accent: #7C5CFC;
+            --accent-dark: #5B3FD6;
+            --bg-card: #1A1C29;
+        }
+
+        .stApp {
+            background: radial-gradient(circle at 15% 0%, #241f3d 0%, #0E0F1A 45%);
+        }
+
+        #MainMenu, footer, header[data-testid="stHeader"] { visibility: hidden; }
+
+        .block-container { padding-top: 2rem; max-width: 1150px; }
+
+        .hero {
+            background: linear-gradient(120deg, #7C5CFC 0%, #4E3DB8 100%);
+            border-radius: 20px;
+            padding: 2rem 2.4rem;
+            margin-bottom: 1.6rem;
+            box-shadow: 0 18px 40px -16px rgba(124, 92, 252, 0.55);
+        }
+        .hero h1 {
+            color: white;
+            font-size: 2.1rem;
+            margin: 0 0 .35rem 0;
+            font-weight: 800;
+        }
+        .hero p {
+            color: rgba(255,255,255,0.85);
+            margin: 0;
+            font-size: 1.02rem;
+        }
+        .hero .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.18);
+            color: white;
+            padding: .25rem .7rem;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 600;
+            letter-spacing: .03em;
+            margin-bottom: .6rem;
+        }
+
+        div[data-testid="stMetric"] {
+            background: var(--bg-card);
+            border: 1px solid rgba(124, 92, 252, 0.25);
+            border-radius: 14px;
+            padding: 1rem 1.2rem;
+        }
+        div[data-testid="stMetric"] label { color: #B7B4CF !important; }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 1.4rem 1.6rem;
+            margin-bottom: 1.2rem;
+        }
+        .card h4 { margin-top: 0; color: #E8E6F7; }
+
+        .pill {
+            display: inline-block;
+            background: rgba(124, 92, 252, 0.15);
+            color: #B9A9FF;
+            border: 1px solid rgba(124, 92, 252, 0.35);
+            padding: .15rem .6rem;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 600;
+            margin-right: .4rem;
+        }
+
+        .stTabs [data-baseweb="tab-list"] { gap: 6px; }
+        .stTabs [data-baseweb="tab"] {
+            background: var(--bg-card);
+            border-radius: 10px 10px 0 0;
+            padding: 10px 18px;
+            color: #B7B4CF;
+        }
+        .stTabs [aria-selected="true"] {
+            background: var(--accent) !important;
+            color: white !important;
+        }
+        .stTabs [data-baseweb="tab-highlight"] { background-color: var(--accent) !important; }
+        .stTabs [data-baseweb="tab-border"] { background-color: transparent !important; }
+
+        .stButton > button, .stDownloadButton > button {
+            background: linear-gradient(120deg, var(--accent), var(--accent-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            padding: .55rem 1.2rem;
+        }
+        .stButton > button:hover, .stDownloadButton > button:hover {
+            filter: brightness(1.1);
+            color: white;
+        }
+
+        section[data-testid="stFileUploaderDropzone"] {
+            background: var(--bg-card);
+            border: 1.5px dashed rgba(124, 92, 252, 0.45);
+            border-radius: 14px;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
-tab_cv, tab_excel = st.tabs(["📄 Procesador de CVs (Word)", "📊 Homologador de Excel"])
+# ---------------------------------------------------------------------------
+# Hero / Header
+# ---------------------------------------------------------------------------
+st.markdown(
+    """
+    <div class="hero">
+        <span class="badge">LAB 04 · UNIDAD II · CÁTEDRA IA</span>
+        <h1>🧠 Procesador de CVs &amp; Homologador de Excel</h1>
+        <p>Ingestión de currículums en Word (.docx) en memoria y homologación
+        inteligente de planillas Excel (.xlsx) con Streamlit + python-docx + pandas.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+tab_cv, tab_excel = st.tabs(["📄  Procesador de CVs (Word)", "📊  Homologador de Excel"])
 
 # ---------------------------------------------------------------------------
 # TAB 1 — Ingestión y procesamiento de CVs en Word (.docx)
 # ---------------------------------------------------------------------------
 with tab_cv:
+    st.markdown(
+        """
+        <div class="card">
+            <h4>📄 Sube un currículum en Word</h4>
+            <span class="pill">io.BytesIO</span>
+            <span class="pill">python-docx</span>
+            <span class="pill">regex</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     archivo_subido = st.file_uploader(
         "Selecciona un CV en formato Word (.docx)", type=["docx"]
     )
@@ -41,8 +180,8 @@ with tab_cv:
         parrafos = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
 
         st.success(
-            f"✅ Documento procesado: {len(parrafos)} párrafos y "
-            f"{len(doc.tables)} tablas encontradas."
+            f"✅ Documento procesado: **{len(parrafos)}** párrafos y "
+            f"**{len(doc.tables)}** tablas encontradas."
         )
 
         # Paso 2: Extracción heurística de entidades (regex) y tablas estructuradas
@@ -56,7 +195,7 @@ with tab_cv:
             texto_completo,
         )
 
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
             st.metric(
                 "📧 Correo Detectado",
@@ -67,26 +206,29 @@ with tab_cv:
                 "📱 Teléfono Detectado",
                 telefono_match.group(0) if telefono_match else "No detectado",
             )
+        with col3:
+            st.metric("🧾 Párrafos extraídos", len(parrafos))
 
         if doc.tables:
-            st.subheader("📊 Tablas Encontradas en el Documento")
+            st.markdown("#### 📊 Tablas Encontradas en el Documento")
             for idx, tabla in enumerate(doc.tables):
                 filas = [
                     [celda.text.strip() for celda in fila.cells] for fila in tabla.rows
                 ]
                 if len(filas) > 1:
                     df_tabla = pd.DataFrame(filas[1:], columns=filas[0])
-                    st.markdown(f"**Tabla {idx + 1}**")
+                    st.caption(f"Tabla {idx + 1}")
                     st.dataframe(df_tabla, use_container_width=True)
 
         # Paso 3: Ficha de candidato, texto editable y exportación
+        st.divider()
         tab1, tab2 = st.tabs(["📋 Ficha Formateada", "✏️ Texto Editable & Descarga"])
 
         with tab1:
-            st.markdown("### Perfil del Postulante")
+            st.markdown("##### Perfil del Postulante")
             for p in parrafos[:6]:
                 if p.isupper():
-                    st.markdown(f"#### 📌 {p}")
+                    st.markdown(f"**📌 {p}**")
                 else:
                     st.write(f"• {p}")
 
@@ -109,10 +251,20 @@ with tab_cv:
 # TAB 2 — Desafío de extensión: Homologador de columnas Excel
 # ---------------------------------------------------------------------------
 with tab_excel:
-    st.subheader("📊 Mapeador y Homologador de Columnas Excel (.xlsx)")
-    st.write(
-        "Sube una planilla con nombres de columna desordenados o inconsistentes "
-        "y homológala a un esquema estándar antes de descargarla."
+    st.markdown(
+        """
+        <div class="card">
+            <h4>📊 Mapeador y Homologador de Columnas Excel</h4>
+            <span class="pill">pandas</span>
+            <span class="pill">openpyxl</span>
+            <span class="pill">auto-mapeo</span>
+            <p style="margin:.6rem 0 0 0; color:#B7B4CF;">
+                Sube una planilla con nombres de columna desordenados o inconsistentes
+                y homológala a un esquema estándar antes de descargarla.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
     ESQUEMA_ESTANDAR = {
@@ -148,10 +300,15 @@ with tab_excel:
         excel_bytes = io.BytesIO(archivo_excel.read())
         df_original = pd.read_excel(excel_bytes, engine="openpyxl")
 
-        st.markdown("**Vista previa de los datos originales:**")
+        m1, m2 = st.columns(2)
+        m1.metric("📑 Filas", len(df_original))
+        m2.metric("🧮 Columnas", len(df_original.columns))
+
+        st.markdown("##### Vista previa de los datos originales")
         st.dataframe(df_original, use_container_width=True)
 
-        st.markdown("**Mapeo de columnas:**")
+        st.divider()
+        st.markdown("##### 🔗 Mapeo de columnas")
         st.caption(
             "Revisa las sugerencias automáticas y ajusta manualmente las columnas "
             "que no coincidan con el esquema estándar."
@@ -160,20 +317,23 @@ with tab_excel:
         opciones_destino = ["(Ignorar columna)"] + list(ESQUEMA_ESTANDAR.keys())
         mapeo = {}
 
-        for columna in df_original.columns:
+        cols_grid = st.columns(2)
+        for i, columna in enumerate(df_original.columns):
             sugerencia = sugerir_columna(columna)
             indice_default = (
                 opciones_destino.index(sugerencia) if sugerencia in opciones_destino else 0
             )
-            seleccion = st.selectbox(
-                f"Columna original: «{columna}»",
-                options=opciones_destino,
-                index=indice_default,
-                key=f"map_{columna}",
-            )
+            with cols_grid[i % 2]:
+                seleccion = st.selectbox(
+                    f"Columna original: «{columna}»",
+                    options=opciones_destino,
+                    index=indice_default,
+                    key=f"map_{columna}",
+                )
             if seleccion != "(Ignorar columna)":
                 mapeo[columna] = seleccion
 
+        st.write("")
         if st.button("🔄 Homologar y Generar Planilla Estándar"):
             if mapeo:
                 df_homologado = df_original[list(mapeo.keys())].rename(columns=mapeo)
@@ -194,3 +354,12 @@ with tab_excel:
                 st.warning("⚠️ Selecciona al menos una columna para homologar.")
     else:
         st.info("⬆️ Sube un archivo .xlsx para comenzar la homologación.")
+
+st.markdown(
+    """
+    <div style="text-align:center; color:#5C5A78; font-size:.8rem; margin-top:2.5rem;">
+        Cátedra Aplicaciones de la Inteligencia Artificial · Licenciatura en Análisis de Sistemas · UNIBE 2026
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
