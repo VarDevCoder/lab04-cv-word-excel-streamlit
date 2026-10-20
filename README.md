@@ -1,7 +1,12 @@
 # Laboratorio 4 — Ingestión de CVs Word (.docx) y Homologación Excel (.xlsx)
 
-App web en **Streamlit** desarrollada para la Cátedra *Aplicaciones de la Inteligencia Artificial*
+Desarrollado para la Cátedra *Aplicaciones de la Inteligencia Artificial*
 (Licenciatura en Análisis de Sistemas, UNIBE — Semestre II 2026).
+
+Incluye **dos interfaces equivalentes**:
+
+- `app.py` — App **web** con [Streamlit](https://streamlit.io/) (también dockerizada).
+- `gui.py` — App de **escritorio** con `tkinter` (librería estándar de Python, sin dependencias de UI extra).
 
 ## ¿Qué hace?
 
@@ -21,7 +26,7 @@ App web en **Streamlit** desarrollada para la Cátedra *Aplicaciones de la Intel
 
 - Python 3.10+
 
-## Instalación y ejecución local
+## Opción A — App web (Streamlit)
 
 ```bash
 pip install -r requirements.txt
@@ -30,8 +35,36 @@ streamlit run app.py
 
 La app se abrirá en `http://localhost:8501`.
 
+### Con Docker
+
+```bash
+docker compose up --build
+```
+
+o manualmente:
+
+```bash
+docker build -t lab04-cv-excel .
+docker run -p 8501:8501 lab04-cv-excel
+```
+
+Luego abrí `http://localhost:8501` en tu navegador.
+
+## Opción B — App de escritorio (Tkinter)
+
+Interfaz gráfica nativa equivalente, sin servidor ni navegador:
+
+```bash
+pip install -r requirements.txt
+python gui.py
+```
+
+> La GUI de escritorio usa `tkinter` (incluido en la instalación estándar de Python) y no corre dentro del contenedor Docker, ya que ese requiere un entorno gráfico local.
+
 ## Stack
 
-- [Streamlit](https://streamlit.io/)
+- [Streamlit](https://streamlit.io/) (app web)
+- [tkinter](https://docs.python.org/3/library/tkinter.html) (app de escritorio)
 - [python-docx](https://python-docx.readthedocs.io/)
 - [pandas](https://pandas.pydata.org/) + [openpyxl](https://openpyxl.readthedocs.io/)
+- [Docker](https://www.docker.com/) (para la app web)
